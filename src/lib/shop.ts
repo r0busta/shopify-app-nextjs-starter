@@ -168,16 +168,14 @@ function getShopService() {
 }
 
 export async function saveShopifySessionInfo(
-    req: NextApiRequest,
-    res: NextApiResponse,
+    clerkSessionToken: string,
     shop: string,
     shopifySessionId: string,
     expires_in: number | undefined
 ) {
     let userId: string | undefined
     try {
-        const sessionToken = req.cookies["__session"]
-        const sessionId = parseJwt(sessionToken)?.sid
+        const sessionId = parseJwt(clerkSessionToken)?.sid
 
         const clerkSession = await clerk.sessions.getSession(sessionId)
         if (clerkSession.userId) {
@@ -199,44 +197,41 @@ export async function saveShopifySessionInfo(
 }
 
 export async function getAccessToken(
-    req: NextApiRequest,
-    res: NextApiResponse
-): Promise<[string | undefined, string | undefined]> {
+    clerkSessionToken: string,
+    shop: string
+): Promise<[string | undefined, string | undefined, Error | null]> {
+    if (clerkSessionToken === "") {
+        return [undefined, undefined, new Error("Clerk session token is not set.")]
+    }
+    if (shop === "") {
+        return [undefined, undefined, new Error("Unknown shop domain.")]
+    }
+
     let userId: string | undefined
     try {
-        const sessionToken = req.cookies["__session"]
-        const sessionId = parseJwt(sessionToken)?.sid
+        const sessionId = parseJwt(clerkSessionToken)?.sid
 
         const clerkSession = await clerk.sessions.getSession(sessionId)
         if (clerkSession.userId) {
             userId = clerkSession.userId
         }
     } catch (e) {
-        res.status(401)
-        res.end("Failed to get current session.")
-        return [undefined, undefined]
+        return [undefined, undefined, new Error("Failed to get current session.")]
     }
 
     if (!userId) {
-        res.status(401)
-        res.end("Failed to get current user.")
-        return [undefined, undefined]
-    }
-
-    const xShopifyShopDomainHeader = req.headers["x-shopify-shop-domain"]
-    const shop =
-        (Array.isArray(xShopifyShopDomainHeader) ? xShopifyShopDomainHeader[0] : xShopifyShopDomainHeader) || ""
-    if (shop === "") {
-        res.status(400)
-        res.end("Unknown shop domain.")
+        return [undefined, undefined, new Error("Failed to get current user.")]
     }
 
     const accessToken = await getShopService().getToken(userId, shop)
     if (!accessToken) {
-        res.status(401)
-        res.end("Failed to get Shopify session.")
-        return [undefined, undefined]
+        return [undefined, undefined, new Error("Failed to get access token.")]
     }
 
-    return [shop, accessToken]
+    return [shop, accessToken, null]
+}
+
+export async function deleteShop(shop: string) {
+    // TODO: delete shop from all users'
+    return
 }

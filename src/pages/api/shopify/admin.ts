@@ -52,8 +52,18 @@ export const config = {
 let server: ApolloServer | undefined
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-    const [shop, accessToken] = await getAccessToken(req, res)
+    const clerkSessionToken = req.cookies["__session"]
+    const shopDomainHeader = req.headers["x-shopify-shop-domain"]
+    const [shop, accessToken, err] = await getAccessToken(
+        clerkSessionToken,
+        (Array.isArray(shopDomainHeader) ? shopDomainHeader[0] : shopDomainHeader) || ""
+    )
 
+    if (err) {
+        res.status(401)
+        res.end(err)
+        return
+    }
     if (!shop || !accessToken) {
         res.status(401)
         res.end("Failed to get Shopify session.")

@@ -3,10 +3,19 @@ import { AuthQuery } from "@shopify/shopify-api"
 import { Session } from "@shopify/shopify-api/dist/auth/session"
 import Shopify from "lib/shopify"
 import { saveShopifySessionInfo } from "lib/shop"
+import { registerUninstallWebhook } from "lib/webhook"
 
 async function afterAuth(req: NextApiRequest, res: NextApiResponse, currentSession: Session): Promise<string> {
-    const { id, onlineAccessInfo, shop } = currentSession
-    saveShopifySessionInfo(req, res, shop, id, onlineAccessInfo?.expires_in)
+    const { id, onlineAccessInfo, shop, accessToken } = currentSession
+
+    if (!accessToken) {
+        throw new Error("No access token")
+    }
+
+    const clerkSessionToken = req.cookies["__session"]
+    saveShopifySessionInfo(clerkSessionToken, shop, id, onlineAccessInfo?.expires_in)
+
+    await registerUninstallWebhook(shop, accessToken)
 
     return "/shopify/auth/success"
 }

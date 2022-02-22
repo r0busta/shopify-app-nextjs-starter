@@ -1,7 +1,20 @@
+import { NextResponse, NextFetchEvent, NextRequest } from "next/server"
 import { requireSession } from "@clerk/nextjs/edge"
-import { NextResponse } from "next/server"
 
-async function middleware(req: any) {
+function isWebhookPath(pathname: string) {
+    return pathname.startsWith("/api/shopify/webhooks/")
+}
+
+function withWebhooks(req: NextRequest, _: NextFetchEvent) {
+    if (isWebhookPath(req.nextUrl.pathname)) {
+        return NextResponse.next()
+    }
+
+    return requireSession(clerkSessionHandler)(req)
+}
+
+async function clerkSessionHandler(req: any) {
+    console.log("clerkSessionHandler")
     try {
         await req.session.verifyWithNetwork()
         return NextResponse.next()
@@ -10,4 +23,4 @@ async function middleware(req: any) {
     }
 }
 
-export default requireSession(middleware)
+export default withWebhooks
