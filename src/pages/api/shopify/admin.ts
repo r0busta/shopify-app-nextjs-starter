@@ -1,46 +1,77 @@
 import { NextApiRequest, NextApiResponse } from "next/types"
-import { ApolloServer } from "apollo-server-micro"
-import { GraphQLSchema, print } from "graphql"
-import { wrapSchema, introspectSchema } from "@graphql-tools/wrap"
+import { ApolloServer, AuthenticationError } from "apollo-server-micro"
+import { loadSchemaSync } from "@graphql-tools/load"
+import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader"
+import { AsyncExecutor } from "@graphql-tools/utils"
+import { wrapSchema } from "@graphql-tools/wrap"
 import { getAccessToken } from "lib/shop"
+import { print } from "graphql"
+import { join } from "path"
 
-const createSchema = async (shop: string, accessToken: string): Promise<GraphQLSchema> => {
-    const serverExecutor = async ({ document, variables }: any) => {
-        const query = print(document)
+const adminApiVersion = "unstable"
 
-        const apiVersion = "unstable"
-        const uri = `https://${shop}/admin/api/${apiVersion}/graphql.json`
-        return fetch(uri, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": accessToken || "",
-            },
-            body: JSON.stringify({ query, variables }),
-        }).then(
-            async (r) => r.json(),
-            (e) => {
-                console.log(`Executor: couldn't obtain schema from ${uri}`, e)
-                return e
-            }
-        )
+const adminExecutor: AsyncExecutor = async ({ document, variables, context }) => {
+    if (!context) {
+        throw new Error("No context")
     }
 
-    const getServerSchema = async (): Promise<GraphQLSchema> => {
-        const schema = await introspectSchema(serverExecutor)
-        return wrapSchema({
-            schema: schema,
-            executor: serverExecutor,
-        })
-    }
+    const { shop, accessToken } = context
 
-    return getServerSchema()
+    const query = print(document)
+    return fetch(`https://${shop}/admin/api/${adminApiVersion}/graphql.json`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": accessToken || "",
+        },
+        body: JSON.stringify({ query, variables }),
+    }).then(
+        async (r) => r.json(),
+        (e) => {
+            console.error(e)
+            return e
+        }
+    )
 }
 
-const createServer = (schema: GraphQLSchema) => {
-    return new ApolloServer({
-        schema: schema,
+const createServer = () => {
+    const adminSchema = loadSchemaSync(join(process.cwd(), "src/graphql/shopify/admin/schema.graphqls"), {
+        loaders: [new GraphQLFileLoader()],
     })
+
+    const schema = wrapSchema({
+        schema: adminSchema,
+        executor: adminExecutor,
+    })
+
+    return new ApolloServer({
+        introspection: false,
+        schema,
+        context: async ({ req }) => {
+            const clerkSessionToken = req.cookies["__session"]
+            const shopDomainHeader = req.headers["x-shopify-shop-domain"]
+            const [shop, accessToken, err] = await getAccessToken(
+                clerkSessionToken,
+                (Array.isArray(shopDomainHeader) ? shopDomainHeader[0] : shopDomainHeader) || ""
+            )
+
+            if (err || !shop || !accessToken) {
+                console.error(err)
+                throw new AuthenticationError("Not authenticated")
+            }
+
+            return { shop, accessToken }
+        },
+    })
+}
+
+let _server: ApolloServer | undefined
+async function getServer() {
+    if (!_server) {
+        _server = createServer()
+        await _server.start()
+    }
+    return _server
 }
 
 export const config = {
@@ -49,41 +80,10 @@ export const config = {
     },
 }
 
-let server: ApolloServer | undefined
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-    const clerkSessionToken = req.cookies["__session"]
-    const shopDomainHeader = req.headers["x-shopify-shop-domain"]
-    const [shop, accessToken, err] = await getAccessToken(
-        clerkSessionToken,
-        (Array.isArray(shopDomainHeader) ? shopDomainHeader[0] : shopDomainHeader) || ""
-    )
-
-    if (err) {
-        res.status(401)
-        res.end(err)
-        return
-    }
-    if (!shop || !accessToken) {
-        res.status(401)
-        res.end("Failed to get Shopify session.")
-        return
-    }
-
-    if (!server) {
-        let schema
-        try {
-            schema = await createSchema(shop, accessToken)
-        } catch (error) {
-            console.log(error)
-            throw error
-        }
-
-        server = createServer(schema)
-        await server.start()
-    }
-
-    await server.createHandler({
+    await (
+        await getServer()
+    ).createHandler({
         path: "/api/shopify/admin",
     })(req, res)
 }

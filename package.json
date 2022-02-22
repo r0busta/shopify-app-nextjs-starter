@@ -15,6 +15,8 @@
     "dependencies": {
         "@apollo/client": "^3.5.9",
         "@clerk/nextjs": "^2.11.1",
+        "@graphql-tools/graphql-file-loader": "^7.3.3",
+        "@graphql-tools/load": "^7.5.1",
         "@graphql-tools/wrap": "^8.4.0",
         "@shopify/shopify-api": "^2.1.0",
         "apollo-server-micro": "^3.6.3",
@@ -32,6 +34,7 @@
         "@types/react": "17.0.39",
         "eslint": "8.9.0",
         "eslint-config-next": "12.0.10",
-        "typescript": "4.5.5"
+        "typescript": "4.5.5",
+        "webpack-graphql-loader": "^1.0.2"
     }
 }
