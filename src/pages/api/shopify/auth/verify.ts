@@ -14,6 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     )
 
     if (err || !shop || !accessToken) {
+        console.error(err)
         res.status(401).json({ success: false })
         return
     }

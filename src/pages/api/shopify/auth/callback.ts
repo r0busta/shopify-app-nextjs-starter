@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import { AuthQuery } from "@shopify/shopify-api"
+import Shopify, { AuthQuery } from "@shopify/shopify-api"
 import { Session } from "@shopify/shopify-api/dist/auth/session"
-import Shopify from "lib/shopify"
+import getShopify from "lib/shopify"
 import { saveShopifySessionInfo } from "lib/shop"
 import { registerUninstallWebhook } from "lib/webhook"
 
@@ -25,9 +25,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const query: AuthQuery = req.query as unknown as AuthQuery
-        await Shopify.Auth.validateAuthCallback(req, res, query)
+        await getShopify().Auth.validateAuthCallback(req, res, query)
 
-        const currentSession = await Shopify.Utils.loadCurrentSession(req, res)
+        const currentSession = await getShopify().Utils.loadCurrentSession(req, res)
         if (typeof currentSession === "undefined") {
             res.writeHead(500)
             res.end("Failed to load current session.")
@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.writeHead(302, { Location: redirectUrl })
         res.end()
     } catch (e: any) {
-        console.log(e)
+        console.error(e)
 
         res.writeHead(500)
         if (e instanceof Shopify.Errors.ShopifyError) {

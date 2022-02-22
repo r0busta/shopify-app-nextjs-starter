@@ -85,4 +85,6 @@ const context: ContextParams = {
 
 Shopify.Context.initialize(context)
 
-export default Shopify
+export default function getShopify() {
+    return Shopify
+}

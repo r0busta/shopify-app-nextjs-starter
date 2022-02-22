@@ -14,7 +14,6 @@ function withWebhooks(req: NextRequest, _: NextFetchEvent) {
 }
 
 async function clerkSessionHandler(req: any) {
-    console.log("clerkSessionHandler")
     try {
         await req.session.verifyWithNetwork()
         return NextResponse.next()

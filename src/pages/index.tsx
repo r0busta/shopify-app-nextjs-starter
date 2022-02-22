@@ -58,7 +58,6 @@ const Home: NextPage = () => {
                 },
             })
             .then((res) => {
-                console.log("verify", res)
                 setShopAuth((prev) => {
                     const newMap = new Map(prev)
                     newMap.set(shop, true)
@@ -110,7 +109,6 @@ const Home: NextPage = () => {
     }
 
     useEffect(() => {
-        console.log("waitForAuth", waitForAuth)
         if (waitForAuth) {
             const id = setInterval(() => {
                 axios
@@ -121,7 +119,6 @@ const Home: NextPage = () => {
                     })
                     .then(
                         (res) => {
-                            console.log("verify", res)
                             setWaitForAuth(false)
                             setShopAuth((prev) => {
                                 const newMap = new Map(prev)
@@ -131,7 +128,7 @@ const Home: NextPage = () => {
                         },
                         (e) => undefined
                     )
-            }, 500)
+            }, 1000)
 
             return () => clearInterval(id)
         }

@@ -1,14 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from "next"
 import clerk from "@clerk/clerk-sdk-node"
-import Shopify from "@shopify/shopify-api"
 import ioredis from "ioredis"
 import { parseJwt } from "./token"
+import getShopify from "./shopify"
 
 const host = process.env.UPSTASH_REDIS_ENDPOINT || ""
 const port = process.env.UPSTASH_REDIS_PORT || ""
 const password = process.env.UPSTASH_REDIS_PASSWORD || ""
 
-class UserShopsStorage {
+class ShopUsersStorage {
     private client: ioredis.Redis
     private keyPrefix: string = "User.Shops"
 
@@ -19,41 +18,8 @@ class UserShopsStorage {
         })
     }
 
-    async add(userId: string, shop: string): Promise<boolean> {
-        const curShops = await this.list(userId)
-        let shops = []
-        if (!curShops) {
-            shops = [shop]
-        } else if (!curShops.includes(shop)) {
-            shops = [...curShops, shop]
-        } else {
-            return true
-        }
-
-        return this.client.set(this.key(userId), JSON.stringify(shops)).then(
-            (v) => !!v,
-            (e) => {
-                console.error(e)
-                return false
-            }
-        )
-    }
-
-    list(userId: string): Promise<string[] | undefined> {
-        return this.client.get(this.key(userId)).then(
-            (v) => {
-                if (!v) return undefined
-                return JSON.parse(v)
-            },
-            (e) => {
-                console.error(e)
-                return undefined
-            }
-        )
-    }
-
-    delete(userId: string): Promise<boolean> {
-        return this.client.del(this.key(userId)).then(
+    async add(shop: string, userId: string): Promise<boolean> {
+        return this.client.sadd(this.key(shop), userId).then(
             (n) => n === 1,
             (e) => {
                 console.error(e)
@@ -62,8 +28,38 @@ class UserShopsStorage {
         )
     }
 
-    private key(id: string): string {
-        return `${this.keyPrefix}.${id}`
+    list(shop: string): Promise<string[] | undefined> {
+        return this.client.smembers(this.key(shop)).then(
+            (v) => v,
+            (e) => {
+                console.error(e)
+                return undefined
+            }
+        )
+    }
+
+    delete(shop: string): Promise<boolean> {
+        return this.client.del(this.key(shop)).then(
+            (n) => n === 1,
+            (e) => {
+                console.error(e)
+                return false
+            }
+        )
+    }
+
+    deleteUser(shop: string, userId: string): Promise<boolean> {
+        return this.client.srem(this.key(shop), [userId]).then(
+            (n) => n === 1,
+            (e) => {
+                console.error(e)
+                return false
+            }
+        )
+    }
+
+    private key(shop: string): string {
+        return `${this.keyPrefix}.${shop}`
     }
 }
 
@@ -78,7 +74,7 @@ class ShopSessionStorage {
         })
     }
 
-    async add(userId: string, shop: string, sessionId: string, expires_in: number): Promise<boolean> {
+    add(userId: string, shop: string, sessionId: string, expires_in: number): Promise<boolean> {
         return this.client.set(this.key(userId, shop), sessionId, "EX", expires_in).then(
             (v) => !!v,
             (e) => {
@@ -101,9 +97,29 @@ class ShopSessionStorage {
         )
     }
 
+    listByShop(userIds: string[], shop: string): Promise<string[] | undefined> {
+        return this.client.mget(userIds.map((id) => this.key(id, shop))).then(
+            (v) => v.filter((item) => !!item) as string[],
+            (e) => {
+                console.error(e)
+                return undefined
+            }
+        )
+    }
+
     delete(userId: string, shop: string): Promise<boolean> {
         return this.client.del(this.key(userId, shop)).then(
             (n) => n === 1,
+            (e) => {
+                console.error(e)
+                return false
+            }
+        )
+    }
+
+    deleteAll(userIds: string[], shop: string): Promise<boolean> {
+        return this.client.del(userIds.map((id) => this.key(id, shop))).then(
+            (n) => n === userIds.length,
             (e) => {
                 console.error(e)
                 return false
@@ -117,16 +133,16 @@ class ShopSessionStorage {
 }
 
 class ShopService {
-    private userShopsStorage: UserShopsStorage
+    private shopUsersStorage: ShopUsersStorage
     private shopSessionStorage: ShopSessionStorage
 
     constructor() {
-        this.userShopsStorage = new UserShopsStorage()
+        this.shopUsersStorage = new ShopUsersStorage()
         this.shopSessionStorage = new ShopSessionStorage()
     }
 
-    public async save(userId: string, shop: string, sessionId: string, expires_in: number): Promise<boolean> {
-        const ok = await this.userShopsStorage.add(userId, shop)
+    async saveSession(userId: string, shop: string, sessionId: string, expires_in: number): Promise<boolean> {
+        const ok = await this.shopUsersStorage.add(shop, userId)
         if (!ok) {
             return false
         }
@@ -134,27 +150,46 @@ class ShopService {
         return this.shopSessionStorage.add(userId, shop, sessionId, expires_in)
     }
 
-    private async getShopifySessionId(userId: string, shop: string): Promise<string | undefined> {
-        const shops = await this.userShopsStorage.list(userId)
-        if (!shops || !shops.includes(shop)) {
-            return undefined
-        }
-
-        return this.shopSessionStorage.get(userId, shop)
-    }
-
-    public async getToken(userId: string, shop: string): Promise<string | undefined> {
+    async getToken(userId: string, shop: string): Promise<string | undefined> {
         const sessionId = await this.getShopifySessionId(userId, shop)
         if (!sessionId) {
+            console.error("No session found")
             return undefined
         }
 
-        const currentSession = await Shopify.Context.SESSION_STORAGE.loadSession(sessionId)
+        const currentSession = await getShopify().Context.SESSION_STORAGE.loadSession(sessionId)
         if (!currentSession || !currentSession.expires || currentSession.expires.getTime() < Date.now()) {
+            console.error("No Shopify session found or session expired")
             return undefined
         }
 
         return currentSession.accessToken
+    }
+
+    async deleteShop(shop: string): Promise<boolean> {
+        const userIds = await this.shopUsersStorage.list(shop)
+        if (userIds && userIds.length > 0) {
+            const sessionIds = await this.shopSessionStorage.listByShop(userIds, shop)
+
+            if (sessionIds && sessionIds.length > 0) {
+                for (const sessionId of sessionIds) {
+                    await getShopify().Context.SESSION_STORAGE.deleteSession(sessionId)
+                }
+            }
+
+            await this.shopSessionStorage.deleteAll(userIds, shop)
+        }
+
+        return this.shopUsersStorage.delete(shop)
+    }
+
+    private async getShopifySessionId(userId: string, shop: string): Promise<string | undefined> {
+        const userIds = await this.shopUsersStorage.list(shop)
+        if (!userIds || !userIds.includes(userId)) {
+            return undefined
+        }
+
+        return this.shopSessionStorage.get(userId, shop)
     }
 }
 
@@ -190,7 +225,7 @@ export async function saveShopifySessionInfo(
         throw new Error("Could not find userId")
     }
 
-    const ok = await getShopService().save(userId, shop, shopifySessionId, expires_in || 3600)
+    const ok = await getShopService().saveSession(userId, shop, shopifySessionId, expires_in || 3600)
     if (!ok) {
         throw new Error("Could not save shop")
     }
@@ -232,6 +267,5 @@ export async function getAccessToken(
 }
 
 export async function deleteShop(shop: string) {
-    // TODO: delete shop from all users'
-    return
+    return getShopService().deleteShop(shop)
 }
