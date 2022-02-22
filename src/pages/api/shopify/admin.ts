@@ -10,7 +10,7 @@ import { join } from "path"
 
 const adminApiVersion = "unstable"
 
-const adminExecutor: AsyncExecutor = async ({ document, variables, context }) => {
+const adminExecutor: AsyncExecutor = ({ document, variables, context }) => {
     if (!context) {
         throw new Error("No context")
     }
@@ -26,7 +26,7 @@ const adminExecutor: AsyncExecutor = async ({ document, variables, context }) =>
         },
         body: JSON.stringify({ query, variables }),
     }).then(
-        async (r) => r.json(),
+        (r) => r.json(),
         (e) => {
             console.error(e)
             return e
@@ -64,26 +64,18 @@ const createServer = () => {
         },
     })
 }
+const server: ApolloServer = createServer()
+const started = server.start().then(() => true)
 
-let _server: ApolloServer | undefined
-async function getServer() {
-    if (!_server) {
-        _server = createServer()
-        await _server.start()
-    }
-    return _server
+export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
+    await Promise.allSettled([started])
+    await server.createHandler({
+        path: "/api/shopify/admin",
+    })(req, res)
 }
 
 export const config = {
     api: {
         bodyParser: false,
     },
-}
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-    await (
-        await getServer()
-    ).createHandler({
-        path: "/api/shopify/admin",
-    })(req, res)
 }
