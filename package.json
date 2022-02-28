@@ -1,11 +1,19 @@
 {
     "name": "shopify-app-nextjs-starter",
+    "version": "0.0.1",
+    "repository": "https://github.com/r0busta/shopify-app-nextjs-starter.git",
     "author": {
         "name": "Kirill Zhuchkov",
-        "email": "ping[dot]kirill[at]gmail[dot]com",
+        "email": "643378+r0busta@users.noreply.github.com",
         "url": "https://github.com/r0busta"
     },
     "license": "MIT",
+    "keywords": [
+        "Next.js",
+        "NestJS",
+        "Shopify",
+        "Shopify Public App"
+    ],
     "scripts": {
         "dev": "next dev",
         "build": "next build",
