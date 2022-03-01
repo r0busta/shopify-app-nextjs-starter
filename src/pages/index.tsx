@@ -1,10 +1,15 @@
-import axios, { AxiosResponse } from "axios"
-import type { NextPage } from "next"
+import axios from "axios"
+import type { GetServerSideProps, NextPage } from "next"
 import { useEffect, useState } from "react"
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client"
 import { UserButton, useUser } from "@clerk/nextjs"
+import { listShops } from "next-shopify-public-app"
 
-const Home: NextPage = () => {
+interface Props {
+    shops: string[]
+}
+
+const Home: NextPage<Props> = ({ shops }: Props) => {
     const { firstName } = useUser()
 
     const [shop, setShop] = useState<string>("")
@@ -142,19 +147,46 @@ const Home: NextPage = () => {
                 </header>
                 <main>Hello, {firstName}!</main>
             </div>
+            <hr />
             <div>
-                <input type="text" onChange={(e) => setShop(e.target.value)} value={shop} placeholder="Shop domain" />
+                <label>Enter a new shop domain or select an already installed one to continue</label>
+                <div>
+                    <input
+                        type="text"
+                        onChange={(e) => setShop(e.target.value)}
+                        value={shop}
+                        placeholder="Shop domain (*.myshopify.com)"
+                    />
+                </div>
+                <div>
+                    <select onChange={(e) => setShop(e.target.value)}>
+                        <option>Select a shop</option>
+                        {shops.map((item) => (
+                            <option key={item} value={item}>
+                                {item}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
-            <div>
-                <button onClick={() => onCheckAuthClick()}>Check auth</button>
-            </div>
-            <div>
-                {waitForAuth ? (
-                    <span>Installing...</span>
-                ) : (
-                    <button onClick={() => onShopifyAuthClick()}>Sign in with Shopify</button>
-                )}
-            </div>
+            {shop && (
+                <>
+                    <hr />
+                    <div>
+                        <h3>{shop}</h3>
+                        <div>
+                            <button onClick={() => onCheckAuthClick()}>Check auth</button>
+                        </div>
+                        <div>
+                            {waitForAuth ? (
+                                <span>Installing...</span>
+                            ) : (
+                                <button onClick={() => onShopifyAuthClick()}>Sign in with Shopify</button>
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
             <div>
                 {Array.from(shopAuth.keys()).map((key) => (
                     <div key={key}>
@@ -168,16 +200,34 @@ const Home: NextPage = () => {
                 ))}
             </div>
             <div>
-                {products &&
-                    products.products.edges.map((edge: any) => (
-                        <div key={edge.node.id}>
-                            <h3>{edge.node.title}</h3>
-                            <p>{edge.node.handle}</p>
-                        </div>
-                    ))}
+                {products && (
+                    <>
+                        <hr />
+                        <h3>Products</h3>
+                        <ul>
+                            {products.products.edges.map((edge: any) => (
+                                <li key={edge.node.id}>
+                                    <span>
+                                        {edge.node.title} — {edge.node.handle}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                )}
             </div>
         </>
     )
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    try {
+        const shops = await listShops(req.cookies["__session"] || "")
+        return { props: { shops } }
+    } catch (e) {
+        console.error(e)
+        return { props: { shops: [] } }
+    }
 }
 
 export default Home
