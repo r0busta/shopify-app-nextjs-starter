@@ -1,8 +1,10 @@
 import { NextResponse, NextFetchEvent, NextRequest } from "next/server"
 import { requireSession } from "@clerk/nextjs/edge"
 
-function isWebhookPath(pathname: string) {
-    return pathname.startsWith("/api/shopify/webhooks/")
+const uninstallPath = "/api/shopify/webhook/uninstall"
+
+export function isWebhookPath(path: string) {
+    return path === uninstallPath
 }
 
 function withWebhooks(req: NextRequest, _: NextFetchEvent) {

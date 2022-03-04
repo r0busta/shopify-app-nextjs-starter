@@ -10,7 +10,6 @@
     "license": "MIT",
     "keywords": [
         "Next.js",
-        "NestJS",
         "Shopify",
         "Shopify Public App"
     ],
@@ -21,20 +20,20 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@apollo/client": "^3.5.9",
-        "@clerk/nextjs": "^2.11.1",
+        "@apollo/client": "^3.5.10",
+        "@clerk/nextjs": "^2.11.7",
         "axios": "^0.26.0",
         "graphql": "^16.3.0",
-        "next": "12.0.10",
-        "next-shopify-public-app": "^0.0.3",
+        "next": "12.1.0",
+        "next-shopify-public-app": "^0.0.4",
         "react": "17.0.2",
         "react-dom": "17.0.2"
     },
     "devDependencies": {
-        "@types/node": "17.0.18",
+        "@types/node": "17.0.21",
         "@types/react": "17.0.39",
-        "eslint": "8.9.0",
-        "eslint-config-next": "12.0.10",
-        "typescript": "4.5.5"
+        "eslint": "8.10.0",
+        "eslint-config-next": "12.1.0",
+        "typescript": "4.6.2"
     }
 }
