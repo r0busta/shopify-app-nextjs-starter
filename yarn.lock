@@ -76,6 +76,16 @@
     snakecase-keys "^5.1.2"
     tslib "^2.3.1"
 
+"@clerk/backend-core@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@clerk/backend-core/-/backend-core-0.6.0.tgz#712172fd42a12f036dec09b97e8eb443cd040d08"
+  integrity sha512-wVg8OOd23VTB1OnOhFzAGsgZeXs8CjLU9sWs6iJ0QM/xFZ3NK2Nx9/2NTZ3eS6l0kfPtJASPf3f8LMSu5tAH1g==
+  dependencies:
+    camelcase-keys "^7.0.1"
+    query-string "^7.0.1"
+    snakecase-keys "^5.1.2"
+    tslib "^2.3.1"
+
 "@clerk/clerk-react@^2.12.3":
   version "2.12.3"
   resolved "https://registry.yarnpkg.com/@clerk/clerk-react/-/clerk-react-2.12.3.tgz#143bb4fcce4cb459f8e8b1a125fb1f6d9a4e3591"
@@ -84,7 +94,23 @@
     "@clerk/types" "^1.28.3"
     tslib "^2.3.1"
 
-"@clerk/clerk-sdk-node@^2.9.6", "@clerk/clerk-sdk-node@^2.9.8":
+"@clerk/clerk-sdk-node@^2.9.6":
+  version "2.9.9"
+  resolved "https://registry.yarnpkg.com/@clerk/clerk-sdk-node/-/clerk-sdk-node-2.9.9.tgz#1096919a80ebfd0cd9222bebe47374c5f0c7f590"
+  integrity sha512-uAhoTXSSV0h36glEILFJsII+fhYgZkAbtwtAFNjLW5uZfhR72mX/MfpRPUvKqzaMKRxeaQEFv1u8MTDr09tu5w==
+  dependencies:
+    "@clerk/backend-core" "^0.6.0"
+    "@peculiar/webcrypto" "^1.2.3"
+    camelcase-keys "^6.2.2"
+    cookies "^0.8.0"
+    deepmerge "^4.2.2"
+    got "^11.8.2"
+    jsonwebtoken "^8.5.1"
+    jwks-rsa "^2.0.4"
+    snakecase-keys "^3.2.1"
+    tslib "^2.3.1"
+
+"@clerk/clerk-sdk-node@^2.9.8":
   version "2.9.8"
   resolved "https://registry.yarnpkg.com/@clerk/clerk-sdk-node/-/clerk-sdk-node-2.9.8.tgz#c06f81e73d0d436acfb6b2234bb01468b1f0b384"
   integrity sha512-jgqEtJgZ05I7YOUi+fHuoCpVy+vHtMCM/IYsBqp9Lhl+AXuftTGZyu/w9egYkXIXK/+Ob5eniDU4WeWdG0A/lA==
@@ -141,9 +167,9 @@
     value-or-promise "1.0.11"
 
 "@graphql-tools/delegate@^8.5.1":
-  version "8.5.1"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/delegate/-/delegate-8.5.1.tgz#3d146cc3bb74935116d3f4bddb3affdf14a9712d"
-  integrity sha512-/YPmVxitt57F8sH50pnfXASzOOjEfaUDkX48eF5q6f16+JBncej2zeu+Zm2c68q8MbIxhPlEGfpd0QZeqTvAxw==
+  version "8.5.3"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/delegate/-/delegate-8.5.3.tgz#3d870ef531ce60e656d996828e8909f0c45e6f20"
+  integrity sha512-e65cEmAccodc3tlVskU0JgEbHgJUGB4sbd/dk2v15nOFzjj9izBTsTdvebI1Bm28Mip10vBJj9G0jJcTeOIyhg==
   dependencies:
     "@graphql-tools/batch-execute" "^8.3.2"
     "@graphql-tools/schema" "^8.3.2"
@@ -192,9 +218,9 @@
     tslib "~2.3.0"
 
 "@graphql-tools/mock@^8.1.2":
-  version "8.5.2"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/mock/-/mock-8.5.2.tgz#c76d5fbe8dc87f6983f0e922d9a50f4410994dff"
-  integrity sha512-5BosbTWkzo5tdxIqoqokGLDPmdTS1tE4QNm6a2ONlXz0MaynPRAQ8b2CcSy/c6r0lDmCdkLtbVrRtV6m/wE6Kw==
+  version "8.6.0"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/mock/-/mock-8.6.0.tgz#c74c4fc7b51e007fbbdbc4c29e3e84ce7e259ed1"
+  integrity sha512-w9w3Kq44Vu8fFIP/T6cYoKWI1lDMt3pT7x18brQgeBN3j4n9KP5AomA4LqRQ3FujPxSjRmX97fhWRDQU7G4tgw==
   dependencies:
     "@graphql-tools/schema" "^8.3.2"
     "@graphql-tools/utils" "^8.6.2"
@@ -795,10 +821,10 @@ apollo-server-caching@^3.3.0:
   dependencies:
     lru-cache "^6.0.0"
 
-apollo-server-core@^3.6.3:
-  version "3.6.3"
-  resolved "https://registry.yarnpkg.com/apollo-server-core/-/apollo-server-core-3.6.3.tgz#6b12ffa1af8bc8799930f72360090834915033d1"
-  integrity sha512-TFJmAlI6vPp1MHOSXqYkE6leAyMekWv/D/3ma11uETkcd3EPjERGmxtTXPJElMVEkOK9BEElYKthCrH7bjYLuw==
+apollo-server-core@^3.6.4:
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/apollo-server-core/-/apollo-server-core-3.6.4.tgz#dcf3925173a8e9a501ed3975654cb2ed58af3710"
+  integrity sha512-zttpu/3IeDGhRgIGK84z9HwTgvETDl9zntXiQ0G1tBJgOhDvehSkMiOmy+FKR1HW9+94ao1Olz6ZIyhP0dvzSg==
   dependencies:
     "@apollographql/apollo-tools" "^0.5.1"
     "@apollographql/graphql-playground-html" "1.6.29"
@@ -834,12 +860,12 @@ apollo-server-errors@^3.3.1:
   integrity sha512-xnZJ5QWs6FixHICXHxUfm+ZWqqxrNuPlQ+kj5m6RtEgIpekOPssH/SD9gf2B4HuWV0QozorrygwZnux8POvyPA==
 
 apollo-server-micro@^3.6.3:
-  version "3.6.3"
-  resolved "https://registry.yarnpkg.com/apollo-server-micro/-/apollo-server-micro-3.6.3.tgz#302e02e0a71649a08a072b2edf1ddccf76555af2"
-  integrity sha512-gY7c7kwSC/XcO3s4bdHZo/hUCTNCTBakOXjJEb1OQ6KMiMAusH/2qQOtSc+D0LHU3g8DLT035VBouqQm7x7DSA==
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/apollo-server-micro/-/apollo-server-micro-3.6.4.tgz#ee85eecaedb1c0c550b0d0f499b4e3cce3201eab"
+  integrity sha512-wYMOIxtwevM6CxbOMpTDccc3ae/ChJp1XTb0TpBYJDKrEr4P+VFth0tbo4ZwBTjsYGdsxZ2nAyuMpUgMio/xHA==
   dependencies:
     "@hapi/accept" "^5.0.2"
-    apollo-server-core "^3.6.3"
+    apollo-server-core "^3.6.4"
     apollo-server-types "^3.5.1"
     type-is "^1.6.18"
 
@@ -2300,17 +2326,17 @@ micromatch@^4.0.4:
     braces "^3.0.1"
     picomatch "^2.2.3"
 
-mime-db@1.51.0:
-  version "1.51.0"
-  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.51.0.tgz#d9ff62451859b18342d960850dc3cfb77e63fb0c"
-  integrity sha512-5y8A56jg7XVQx2mbv1lu49NR4dokRnhZYTtL+KGfaa27uq4pSTXkwQkFJl4pkRMyNFz/EtYDSkiiEHx3F7UN6g==
+mime-db@1.52.0:
+  version "1.52.0"
+  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.52.0.tgz#bbabcdc02859f4987301c856e3387ce5ec43bf70"
+  integrity sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==
 
 mime-types@^2.1.12, mime-types@~2.1.24:
-  version "2.1.34"
-  resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.34.tgz#5a712f9ec1503511a945803640fafe09d3793c24"
-  integrity sha512-6cP692WwGIs9XXdOO4++N+7qjqv0rqxxVvJ3VHPh/Sc9mVZcQP+ZGhkKiTvWMQRr2tbHkJP/Yn7Y0npb3ZBs4A==
+  version "2.1.35"
+  resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.35.tgz#381a871b62a734450660ae3deee44813f70d959a"
+  integrity sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==
   dependencies:
-    mime-db "1.51.0"
+    mime-db "1.52.0"
 
 mimic-response@^1.0.0:
   version "1.0.1"
@@ -2359,25 +2385,6 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
-next-shopify-public-app@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/next-shopify-public-app/-/next-shopify-public-app-0.0.7.tgz#8df347aac37565806f0aa511a56262a795dce11e"
-  integrity sha512-a/tHRT/OSwoTViVls/KL6Nph/+k8yU0fIUeRcYbADtmEEEo/blMlRlgK6qKUJwlKHNg3vMB03M3hazsv7imnhw==
-  dependencies:
-    "@clerk/clerk-sdk-node" "^2.9.6"
-    "@graphql-tools/graphql-file-loader" "^7.3.4"
-    "@graphql-tools/load" "^7.5.2"
-    "@graphql-tools/utils" "^8.6.2"
-    "@graphql-tools/wrap" "^8.4.3"
-    "@shopify/shopify-api" "^2.1.0"
-    apollo-server-micro "^3.6.3"
-    axios "^0.26.0"
-    got "^12.0.1"
-    graphql "^16.3.0"
-    ioredis "^4.28.5"
-    micro "^9.3.4"
-    next "^12.1.0"
-
 next@12.1.0, next@^12.1.0:
   version "12.1.0"
   resolved "https://registry.yarnpkg.com/next/-/next-12.1.0.tgz#c33d753b644be92fc58e06e5a214f143da61dd5d"
@@ -2400,6 +2407,25 @@ next@12.1.0, next@^12.1.0:
     "@next/swc-win32-arm64-msvc" "12.1.0"
     "@next/swc-win32-ia32-msvc" "12.1.0"
     "@next/swc-win32-x64-msvc" "12.1.0"
+
+nextjs-shopify-public-app@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/nextjs-shopify-public-app/-/nextjs-shopify-public-app-0.0.1.tgz#5af1143c6e60b5bcfbab7344b5750ddf87de8e28"
+  integrity sha512-dadcYB4ygL11RYFn+VxZm+EGLI8KMHO0Ge9keDCRqfqG02XRpcF3GbbjZ0clNR2ogbFbhKYDAGX43kP4OivlzQ==
+  dependencies:
+    "@clerk/clerk-sdk-node" "^2.9.6"
+    "@graphql-tools/graphql-file-loader" "^7.3.4"
+    "@graphql-tools/load" "^7.5.2"
+    "@graphql-tools/utils" "^8.6.2"
+    "@graphql-tools/wrap" "^8.4.3"
+    "@shopify/shopify-api" "^2.1.0"
+    apollo-server-micro "^3.6.3"
+    axios "^0.26.0"
+    got "^12.0.1"
+    graphql "^16.3.0"
+    ioredis "^4.28.5"
+    micro "^9.3.4"
+    next "^12.1.0"
 
 no-case@^3.0.4:
   version "3.0.4"
