@@ -137,7 +137,7 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
 
             return () => clearInterval(id)
         }
-    }, [waitForAuth])
+    }, [waitForAuth, shop])
 
     return (
         <>
