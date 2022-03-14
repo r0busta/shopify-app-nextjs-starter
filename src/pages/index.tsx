@@ -3,7 +3,7 @@ import type { GetServerSideProps, NextPage } from "next"
 import { useEffect, useState } from "react"
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client"
 import { UserButton, useUser } from "@clerk/nextjs"
-import { listShops } from "next-shopify-public-app/lib"
+import { listShops } from "nextjs-shopify-public-app/lib"
 
 interface Props {
     shops: string[]

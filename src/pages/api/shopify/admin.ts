@@ -1,4 +1,4 @@
-import { requireShopifyAdminApiRoute } from "next-shopify-public-app/next"
+import { requireShopifyAdminApiRoute } from "nextjs-shopify-public-app/next"
 
 export const config = {
     api: {
