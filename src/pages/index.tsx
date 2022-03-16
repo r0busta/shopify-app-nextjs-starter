@@ -3,46 +3,46 @@ import type { GetServerSideProps, NextPage } from "next"
 import { useEffect, useState } from "react"
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client"
 import { UserButton, useUser } from "@clerk/nextjs"
-import { listShops } from "nextjs-shopify-public-app/lib"
+import { listStores } from "nextjs-shopify-public-app/lib"
 
 interface Props {
-    shops: string[]
+    stores: string[]
 }
 
-const Home: NextPage<Props> = ({ shops }: Props) => {
+const Home: NextPage<Props> = ({ stores }: Props) => {
     const { firstName } = useUser()
 
-    const [shop, setShop] = useState<string>("")
+    const [store, setStore] = useState<string>("")
 
     const [waitForAuth, setWaitForAuth] = useState<boolean>(false)
-    const [shopAuth, setShopAuth] = useState<Map<string, boolean>>(new Map())
+    const [storeAuth, setStoreAuth] = useState<Map<string, boolean>>(new Map())
 
     const [products, setProducts] = useState<any>()
 
     const onCheckAuthClick = async () => {
-        if (shop === "") {
-            alert("Please enter a shop domain")
+        if (store === "") {
+            alert("Please enter a store domain")
         }
 
         try {
             await axios
                 .post("/api/shopify/auth/verify", null, {
                     headers: {
-                        "x-shopify-shop-domain": shop,
+                        "x-shopify-store-domain": store,
                     },
                 })
                 .then(
                     (res) => {
-                        setShopAuth((prev) => {
+                        setStoreAuth((prev) => {
                             const newMap = new Map(prev)
-                            newMap.set(shop, true)
+                            newMap.set(store, true)
                             return newMap
                         })
                     },
                     (e) => {
-                        setShopAuth((prev) => {
+                        setStoreAuth((prev) => {
                             const newMap = new Map(prev)
-                            newMap.set(shop, false)
+                            newMap.set(store, false)
                             return newMap
                         })
                     }
@@ -52,20 +52,20 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
     }
 
     const onShopifyAuthClick = async () => {
-        if (shop === "") {
-            alert("Please enter a shop domain")
+        if (store === "") {
+            alert("Please enter a store domain")
         }
 
         await axios
             .post("/api/shopify/auth/verify", null, {
                 headers: {
-                    "x-shopify-shop-domain": shop,
+                    "x-shopify-store-domain": store,
                 },
             })
             .then((res) => {
-                setShopAuth((prev) => {
+                setStoreAuth((prev) => {
                     const newMap = new Map(prev)
-                    newMap.set(shop, true)
+                    newMap.set(store, true)
                     return newMap
                 })
             })
@@ -74,7 +74,7 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
                     console.log("Need Shopify install or re-auth")
                     setWaitForAuth(true)
                     window.open(
-                        `/api/shopify/auth/login?shop=${shop}`,
+                        `/api/shopify/auth/login?store=${store}`,
                         "_blank",
                         "location=yes,resizable=yes,statusbar=yes,toolbar=no,width=500,height=600"
                     )
@@ -89,7 +89,7 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
             uri: `/api/shopify/admin`,
             cache: new InMemoryCache(),
             headers: {
-                "x-shopify-shop-domain": key,
+                "x-shopify-store-domain": key,
             },
         })
 
@@ -119,15 +119,15 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
                 axios
                     .post("/api/shopify/auth/verify", null, {
                         headers: {
-                            "x-shopify-shop-domain": shop,
+                            "x-shopify-store-domain": store,
                         },
                     })
                     .then(
                         (res) => {
                             setWaitForAuth(false)
-                            setShopAuth((prev) => {
+                            setStoreAuth((prev) => {
                                 const newMap = new Map(prev)
-                                newMap.set(shop, true)
+                                newMap.set(store, true)
                                 return newMap
                             })
                         },
@@ -137,7 +137,7 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
 
             return () => clearInterval(id)
         }
-    }, [waitForAuth, shop])
+    }, [waitForAuth, store])
 
     return (
         <>
@@ -149,19 +149,19 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
             </div>
             <hr />
             <div>
-                <label>Enter a new shop domain or select an already installed one to continue</label>
+                <label>Enter a new store domain or select an already installed one to continue</label>
                 <div>
                     <input
                         type="text"
-                        onChange={(e) => setShop(e.target.value)}
-                        value={shop}
-                        placeholder="Shop domain (*.myshopify.com)"
+                        onChange={(e) => setStore(e.target.value)}
+                        value={store}
+                        placeholder="Store domain (e.g. mystore.myshopify.com)"
                     />
                 </div>
                 <div>
-                    <select onChange={(e) => setShop(e.target.value)}>
-                        <option>Select a shop</option>
-                        {shops.map((item) => (
+                    <select onChange={(e) => setStore(e.target.value)}>
+                        <option>Select a store</option>
+                        {stores.map((item) => (
                             <option key={item} value={item}>
                                 {item}
                             </option>
@@ -169,11 +169,11 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
                     </select>
                 </div>
             </div>
-            {shop && (
+            {store && (
                 <>
                     <hr />
                     <div>
-                        <h3>{shop}</h3>
+                        <h3>{store}</h3>
                         <div>
                             <button onClick={() => onCheckAuthClick()}>Check auth</button>
                         </div>
@@ -188,10 +188,10 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
                 </>
             )}
             <div>
-                {Array.from(shopAuth.keys()).map((key) => (
+                {Array.from(storeAuth.keys()).map((key) => (
                     <div key={key}>
                         <h3>{key}</h3>
-                        {shopAuth.get(key) ? (
+                        {storeAuth.get(key) ? (
                             <button onClick={() => onLoadAdminProducts(key)}>Load 10 products in admin mode</button>
                         ) : (
                             "The app is not yet installed or not authenticated"
@@ -222,11 +222,11 @@ const Home: NextPage<Props> = ({ shops }: Props) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     try {
-        const shops = await listShops(req.cookies["__session"] || "")
-        return { props: { shops } }
+        const stores = await listStores(req.cookies["__session"] || "")
+        return { props: { stores } }
     } catch (e) {
         console.error(e)
-        return { props: { shops: [] } }
+        return { props: { stores: [] } }
     }
 }
 

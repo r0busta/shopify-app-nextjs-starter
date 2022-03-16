@@ -2408,10 +2408,10 @@ next@12.1.0, next@^12.1.0:
     "@next/swc-win32-ia32-msvc" "12.1.0"
     "@next/swc-win32-x64-msvc" "12.1.0"
 
-nextjs-shopify-public-app@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/nextjs-shopify-public-app/-/nextjs-shopify-public-app-0.0.1.tgz#5af1143c6e60b5bcfbab7344b5750ddf87de8e28"
-  integrity sha512-dadcYB4ygL11RYFn+VxZm+EGLI8KMHO0Ge9keDCRqfqG02XRpcF3GbbjZ0clNR2ogbFbhKYDAGX43kP4OivlzQ==
+nextjs-shopify-public-app@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/nextjs-shopify-public-app/-/nextjs-shopify-public-app-0.0.7.tgz#b19c72aff61b19aeb18b6b3eadd7719c9bf3f956"
+  integrity sha512-fNgzPrnu7rH3H8wLSKZQ/uGRjaFSN+vWCys6nz13D4SFz8V9YU/gCe7xhgQ0EQN8K5XK3wNMfLT6H78Xmvz5lQ==
   dependencies:
     "@clerk/clerk-sdk-node" "^2.9.6"
     "@graphql-tools/graphql-file-loader" "^7.3.4"
