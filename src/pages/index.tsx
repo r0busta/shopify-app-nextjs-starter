@@ -1,8 +1,9 @@
-import axios from "axios"
-import type { GetServerSideProps, NextPage } from "next"
 import { useEffect, useState } from "react"
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client"
+import type { GetServerSideProps, NextPage } from "next"
 import { UserButton, useUser } from "@clerk/nextjs"
+import { withServerSideAuth } from "@clerk/nextjs/ssr"
+import { ApolloClient, InMemoryCache, gql } from "@apollo/client"
+import axios from "axios"
 import { listStores } from "nextjs-shopify-public-app/lib"
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
 }
 
 const Home: NextPage<Props> = ({ stores }: Props) => {
-    const { firstName } = useUser()
+    const { user } = useUser()
 
     const [store, setStore] = useState<string>("")
 
@@ -141,13 +142,17 @@ const Home: NextPage<Props> = ({ stores }: Props) => {
 
     return (
         <>
-            <div>
-                <header>
-                    <UserButton />
-                </header>
-                <main>Hello, {firstName}!</main>
-            </div>
-            <hr />
+            {user && (
+                <>
+                    <div>
+                        <header>
+                            <UserButton />
+                        </header>
+                        <main>Hello, {user.firstName}!</main>
+                    </div>
+                    <hr />
+                </>
+            )}
             <div>
                 <label>Enter a new store domain or select an already installed one to continue</label>
                 <div>
@@ -159,14 +164,17 @@ const Home: NextPage<Props> = ({ stores }: Props) => {
                     />
                 </div>
                 <div>
-                    <select onChange={(e) => setStore(e.target.value)}>
-                        <option>Select a store</option>
-                        {stores.map((item) => (
-                            <option key={item} value={item}>
-                                {item}
-                            </option>
-                        ))}
-                    </select>
+                    <label>Connected stores</label>
+                    <div>
+                        <select onChange={(e) => setStore(e.target.value)}>
+                            <option>Select a store</option>
+                            {stores.map((item) => (
+                                <option key={item} value={item}>
+                                    {item}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </div>
             {store && (
@@ -220,14 +228,19 @@ const Home: NextPage<Props> = ({ stores }: Props) => {
     )
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = withServerSideAuth(async ({ req }) => {
+    const { userId } = req.auth
+    if (!userId) {
+        return { props: { stores: [] } }
+    }
+
     try {
-        const stores = await listStores(req.cookies["__session"] || "")
+        const stores = await listStores(userId)
         return { props: { stores } }
     } catch (e) {
         console.error(e)
         return { props: { stores: [] } }
     }
-}
+})
 
 export default Home

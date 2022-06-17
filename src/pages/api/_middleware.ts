@@ -1,5 +1,5 @@
-import { NextResponse, NextFetchEvent, NextRequest } from "next/server"
-import { requireSession } from "@clerk/nextjs/edge"
+import { NextResponse } from "next/server"
+import { withEdgeMiddlewareAuth } from "@clerk/nextjs/edge-middleware"
 
 const uninstallPath = "/api/shopify/webhook/uninstall"
 
@@ -7,21 +7,20 @@ export function isWebhookPath(path: string) {
     return path === uninstallPath
 }
 
-function withWebhooks(req: NextRequest, _: NextFetchEvent) {
+async function clerkSessionHandler(req: any) {
+    const { sessionId } = req.auth
+
+    if (!sessionId) {
+        return new Response("Forbidden", { status: 403 })
+    }
+
+    return NextResponse.next()
+}
+
+export default withEdgeMiddlewareAuth(async (req) => {
     if (isWebhookPath(req.nextUrl.pathname)) {
         return NextResponse.next()
     }
 
-    return requireSession(clerkSessionHandler)(req)
-}
-
-async function clerkSessionHandler(req: any) {
-    try {
-        await req.session.verifyWithNetwork()
-        return NextResponse.next()
-    } catch (error) {
-        return new Response("Forbidden", { status: 403 })
-    }
-}
-
-export default withWebhooks
+    return clerkSessionHandler(req)
+})
