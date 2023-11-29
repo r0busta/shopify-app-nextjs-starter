@@ -236,7 +236,7 @@ export const getServerSideProps: GetServerSideProps = withServerSideAuth(async (
 
     try {
         const stores = await listStores(userId)
-        return { props: { stores } }
+        return { props: { stores: stores || [] } }
     } catch (e) {
         console.error(e)
         return { props: { stores: [] } }
