@@ -3513,9 +3513,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nextjs-shopify-public-app@npm:0.2.1":
-  version: 0.2.1
-  resolution: "nextjs-shopify-public-app@npm:0.2.1"
+"nextjs-shopify-public-app@npm:0.2.2":
+  version: 0.2.2
+  resolution: "nextjs-shopify-public-app@npm:0.2.2"
   dependencies:
     "@clerk/clerk-sdk-node": "npm:^4.12.22"
     "@graphql-tools/graphql-file-loader": "npm:^8.0.0"
@@ -3529,7 +3529,7 @@ __metadata:
     micro: "npm:^10.0.1"
     next: "npm:^14.0.3"
     uuid: "npm:^9.0.1"
-  checksum: 78340ec364150a044e16b531f7f1dcd2098e0bb50097a6355f8c23f0585fe0d2ffef3ac0c7c4c3a52995a549dcb8102c5e85b8231fe8456a4361d56de9482d00
+  checksum: 4eb4bb055c3d8e165bfacda277db788ba21b46379c34ba89edd41279eb12381dd48366cfbca1e6a8c59059009868ba342400b8a71de945d00a5669393c40a9e2
   languageName: node
   linkType: hard
 
@@ -4258,7 +4258,7 @@ __metadata:
     eslint-config-next: "npm:14.0.3"
     graphql: "npm:^16.8.1"
     next: "npm:14.0.3"
-    nextjs-shopify-public-app: "npm:0.2.1"
+    nextjs-shopify-public-app: "npm:0.2.2"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
     typescript: "npm:^5.3.2"
